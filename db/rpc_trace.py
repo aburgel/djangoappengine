@@ -49,6 +49,8 @@ def create_pre_call_hook(enabled):
             func = globals().get(method, None)
             if func:
                 func(service, call, request, response, rpc)
+        else:
+            logging.info("service: %s %s" % (service, call))
     return pre_call_hook
 
 def create_post_call_hook(enabled):
