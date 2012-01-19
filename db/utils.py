@@ -33,14 +33,26 @@ def set_cursor(queryset, start=None, end=None):
     queryset.query._gae_end_cursor = end
     return queryset
 
-def commit_locked(func_or_using=None):
+def commit_locked(func_or_using=None, retries=None, xg=False):
     """
     Decorator that locks rows on DB reads.
     """
     def inner_commit_locked(func, using=None):
         def _commit_locked(*args, **kw):
-            from google.appengine.api.datastore import RunInTransaction
-            return RunInTransaction(func, *args, **kw)
+            from google.appengine.api.datastore import RunInTransactionOptions
+            from google.appengine.datastore.datastore_rpc import TransactionOptions
+
+            option_dict = {}
+
+            if retries:
+                option_dict['retries'] = retries
+            
+            if xg:
+                option_dict['xg'] = True
+
+            options = TransactionOptions(**option_dict)
+
+            return RunInTransactionOptions(options, func, *args, **kw)
         return wraps(func)(_commit_locked)
     if func_or_using is None:
         func_or_using = DEFAULT_DB_ALIAS
