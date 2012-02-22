@@ -16,7 +16,9 @@ def get_cursor(queryset):
     # Evaluate QuerySet
     len(queryset)
     cursor = getattr(queryset.query, '_gae_cursor', None)
-    return Cursor.to_websafe_string(cursor)
+    if cursor:
+        return Cursor.to_websafe_string(cursor)
+    return None
 
 def set_cursor(queryset, start=None, end=None):
     queryset = queryset.all()
@@ -46,7 +48,7 @@ def commit_locked(func_or_using=None, retries=None, xg=False):
 
             if retries:
                 option_dict['retries'] = retries
-            
+
             if xg:
                 option_dict['xg'] = True
 
