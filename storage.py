@@ -57,7 +57,8 @@ class BlobstoreStorage(Storage):
         elif hasattr(content, 'blobstore_info'):
             data = content.blobstore_info
         elif isinstance(content, File):
-            file_name = files.blobstore.create(mime_type='application/octet-stream')
+            guessed_type = mimetypes.guess_type(name)[0]
+            file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream')
 
             with files.open(file_name, 'a') as f:
                 for chunk in content.chunks():
